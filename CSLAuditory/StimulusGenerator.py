@@ -9,14 +9,25 @@ class StimulusGenerator:
         pass
 
     @staticmethod
-    def test_method():
-        print("This is a test method")
+    def generate_pure_tones(frequency, duration, sample_rate, amplitude=0.5, fade_duration=0.05):
+        t = np.linspace(0, duration, int(sample_rate * duration), endpoint=False)
+        acoustic_signal = np.zeros_like(t)
+
+        pure_tone = amplitude * np.sin(2 * np.pi * frequency * t)
+        acoustic_signal += pure_tone
+
+        acoustic_signal = StimulusGenerator.apply_fade(acoustic_signal, sample_rate, fade_duration)
+
+        # Normalize the signal
+        acoustic_signal = acoustic_signal / np.max(np.abs(acoustic_signal))
+
+        return StimulusGenerator.zero_pad(acoustic_signal, int(duration * sample_rate))
+
 
     @staticmethod
     def generate_harmonic_series(fundamental_freq, stimulus_duration, signal_duration, sample_rate, num_harmonics=5,
                                  amplitude=0.5,
                                  fade_duration=0.05):
-
         t = np.linspace(0, stimulus_duration, int(sample_rate * stimulus_duration), endpoint=False)
         acoustic_signal = np.zeros_like(t)
 
@@ -31,6 +42,7 @@ class StimulusGenerator:
 
         return StimulusGenerator.zero_pad(acoustic_signal, int(signal_duration * sample_rate))
 
+
     @staticmethod
     def generate_white_noise(stimulus_duration, signal_duration, sample_rate, fade_duration=0.05):
         t = np.linspace(0, stimulus_duration, int(sample_rate * stimulus_duration), endpoint=False)
@@ -43,6 +55,7 @@ class StimulusGenerator:
 
         return StimulusGenerator.zero_pad(acoustic_signal, int(signal_duration * sample_rate))
 
+
     @staticmethod
     def generate_tremolo_signal(carrier_freq, modulator_freq, modulation_index, duration, sample_rate):
         t = np.linspace(0, duration, int(sample_rate * duration), endpoint=False)
@@ -52,6 +65,7 @@ class StimulusGenerator:
         tremolo_signal = tremolo_signal / np.max(np.abs(tremolo_signal))
         return tremolo_signal
 
+
     @staticmethod
     def generate_vibrato_signal(carrier_freq, modulator_freq, modulation_index, duration, sample_rate):
         t = np.linspace(0, duration, int(sample_rate * duration), endpoint=False)
@@ -60,12 +74,14 @@ class StimulusGenerator:
         vibrato_signal = vibrato_signal / np.max(np.abs(vibrato_signal))
         return vibrato_signal
 
+
     @staticmethod
     def generate_frequency_sweep_signal(start_freq, end_freq, duration, sample_rate):
         t = np.linspace(0, duration, int(sample_rate * duration), endpoint=False)
         sweep_signal = np.sin(2 * np.pi * ((start_freq + (end_freq - start_freq) * t / duration)) * t)
         sweep_signal = sweep_signal / np.max(np.abs(sweep_signal))
         return sweep_signal
+
 
     @staticmethod
     def zero_pad(signal, target_length):
@@ -84,6 +100,7 @@ class StimulusGenerator:
 
         return padded_signal
 
+
     @staticmethod
     def apply_fade(acoustic_signal, sample_rate, fade_duration):
         fade_in_samples = int(sample_rate * fade_duration)
@@ -98,11 +115,13 @@ class StimulusGenerator:
             acoustic_signal[-fade_out_samples:] *= fade_out
         return acoustic_signal
 
+
     @staticmethod
     def get_spectrum(signal, sample_rate):
         spectrum = np.abs(np.fft.fft(signal))
         freqs = np.fft.fftfreq(len(spectrum), 1 / sample_rate)
         return freqs, spectrum
+
 
     @staticmethod
     def get_spectrogram(signal, sample_rate, window_duration_s=0.023, plot=False):
@@ -118,6 +137,7 @@ class StimulusGenerator:
             plt.show()
 
         return spectrogram
+
 
     @staticmethod
     def reverse_spectrogram(spectrogram, sample_rate, window_duration_s=0.023):
