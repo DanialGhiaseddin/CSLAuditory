@@ -9,6 +9,10 @@ class StimulusGenerator:
         pass
 
     @staticmethod
+    def test_method():
+        print("This is a test method")
+
+    @staticmethod
     def generate_harmonic_series(fundamental_freq, stimulus_duration, signal_duration, sample_rate, num_harmonics=5,
                                  amplitude=0.5,
                                  fade_duration=0.05):
