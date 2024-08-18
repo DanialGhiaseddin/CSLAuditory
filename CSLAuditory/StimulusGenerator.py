@@ -120,8 +120,17 @@ class StimulusGenerator:
         return spectrogram
 
     @staticmethod
+    def reverse_spectrogram(spectrogram, sample_rate, window_duration_s=0.023):
+        n_fft = StimulusGenerator._next_power_of_2(int(window_duration_s * sample_rate))
+        hop_length = n_fft // 4
+        sig_reconstructed = librosa.griffinlim(spectrogram, hop_length=hop_length, n_fft=n_fft)
+        return sig_reconstructed
+
+
+    @staticmethod
     def save_signal_to_wav(signal, sample_rate, filename):
         sf.write(filename, signal, sample_rate)
+
 
     @staticmethod
     def _next_power_of_2(x):
@@ -144,7 +153,14 @@ if __name__ == "__main__":
         sig = StimulusGenerator.generate_frequency_sweep_signal(440.0, 880.0, 5, sr)
     # sig = StimulusGenerator.generate_harmonic_series(440.0, 0.2, 5, sr, 5, 0.5, 0.05)
 
-    StimulusGenerator.get_spectrogram(sig, 44100, plot=True)
+    spectrogram = StimulusGenerator.get_spectrogram(sig, 44100, plot=True)
+    r_signal = StimulusGenerator.reverse_spectrogram(spectrogram, 44100)
+    StimulusGenerator.save_signal_to_wav(r_signal, 44100, f"output/{stimulus_type}_reconstructed.wav")
+    # plt.plot(r_signal)
+
+    plt.plot(sig)
+    # plt.plot(r_signal)
+    # plt.show()
     StimulusGenerator.save_signal_to_wav(sig, 44100, f"output/{stimulus_type}.wav")
 
     spectrum = StimulusGenerator.get_spectrum(sig, 44100)
