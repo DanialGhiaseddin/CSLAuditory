@@ -124,9 +124,10 @@ class StimulusGenerator:
 
 
     @staticmethod
-    def get_spectrogram(signal, sample_rate, window_duration_s=0.023, plot=False, db=False):
+    def get_spectrogram(signal, sample_rate, window_duration_s=0.023, hop_length=None, plot=False, db=False):
         n_fft = StimulusGenerator._next_power_of_2(int(window_duration_s * sample_rate))
-        hop_length = n_fft // 4
+        if hop_length is None:
+            hop_length = n_fft // 4
         spectrogram = np.abs(librosa.stft(signal, n_fft=n_fft, hop_length=hop_length))
 
         if plot:
